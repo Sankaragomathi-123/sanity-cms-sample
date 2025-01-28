@@ -1,8 +1,31 @@
-import sanityClient from "@sanity/client";
+import { createClient } from "@sanity/client";
 
-export default sanityClient({
+export const client = createClient({
   projectId: "j9br4h7e",
-  dataset: "production",
+  dataset: "blog-sanity",
+  apiVersion: "2024-01-01",
   useCdn: true,
-  apiVersion: "2021-01-27",
 });
+
+export async function fetchPosts() {
+  const query = `*[_type == 'post']{
+    _id,
+    title,
+    slug,
+    mainImage{
+      asset->{
+        _id,
+        url
+      }
+    }
+  }`;
+
+  try {
+    const posts = await client.fetch(query);
+    console.log("Fetched Posts:", posts);
+    return posts;
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return [];
+  }
+}
